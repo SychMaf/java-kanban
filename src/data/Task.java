@@ -1,4 +1,6 @@
-class Task {
+package data;
+
+public class Task {
     private String name;
     private String description;
     private String status;

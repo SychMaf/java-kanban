@@ -1,5 +1,6 @@
+package data;
 
-class Subtask extends Task {
+public class Subtask extends Task {
     private int epicBind;
 
     public Subtask(String name, String description, int epicBind, String status) {

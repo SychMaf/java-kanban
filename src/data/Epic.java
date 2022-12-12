@@ -1,6 +1,8 @@
+package data;
+
 import java.util.ArrayList;
 
-class Epic extends Task {
+public class Epic extends Task {
     private ArrayList<Integer> subtaskIdList = new ArrayList<>();
 
     public Epic(String name, String description, String status) {
@@ -27,6 +29,3 @@ class Epic extends Task {
         subtaskIdList.add(sabId);
     }
 }
-
-
-
