@@ -1,52 +1,59 @@
 import data.Epic;
+import data.Status;
 import data.Subtask;
 import data.Task;
-import logics.Manager;
+import logics.HistoryManager;
+import logics.Managers;
+import logics.TaskManager;
 
 public class Main {
-
     public static void main(String[] args) {
-        Manager manager = new Manager();
-        Task task = new Task("Таск 1", "Описание таск 1", "NEW"); // id 1
-        Epic epic = new Epic("Эпик 1", "описание эпик 1", "NEW"); // id 2
-        Subtask subtask = new Subtask("Сабтаск 1", "описание саб 1", 2, "NEW"); // id 3
-        Task task1 = new Task("Таск 2", "описание таск 2", "NEW"); // id 4
-        Subtask subtask1 = new Subtask("Сабтаск 2", "описание саб 2", 2, "DONE"); // id 5
-        Epic epic1 = new Epic("Эпик 2", "описание эпик 2", "NEW"); // id 6
-        Subtask subtask2 = new Subtask("Сабтаск 3", "описание саб 3", 6, "DONE"); // id 7
+        TaskManager taskManager = Managers.getDefault();
+        HistoryManager historyManager = taskManager.getHistoryManager();
 
-        manager.createTask(task);
-        manager.createEpic(epic);
-        manager.createSubtask(subtask);
-        int idTask = manager.createTask(task1);
-        int idSabTask = manager.createSubtask(subtask1);
-        int idEpic = manager.createEpic(epic1);
-        manager.createSubtask(subtask2);
+        Task task = new Task("Таск 1", "Описание таск 1", Status.NEW); // id 1
+        Epic epic = new Epic("Эпик 1", "описание эпик 1", Status.NEW); // id 2
+        Subtask subtask = new Subtask("Сабтаск 1", "описание саб 1", 2, Status.NEW); // id 3
+        Task task1 = new Task("Таск 2", "описание таск 2", Status.NEW); // id 4
+        Subtask subtask1 = new Subtask("Сабтаск 2", "описание саб 2", 2, Status.DONE); // id 5
+        Epic epic1 = new Epic("Эпик 2", "описание эпик 2", Status.DONE); // id 6
+        Subtask subtask2 = new Subtask("Сабтаск 3", "описание саб 3", 6, Status.DONE); // id 7
 
-        manager.getTasks();
-        manager.getSabTasks();
-        manager.getEpics();
+        taskManager.createTask(task);
+        taskManager.createEpic(epic);
+        taskManager.createSubtask(subtask);
+        int idTask = taskManager.createTask(task1);
+        int idSabTask = taskManager.createSubtask(subtask1);
+        int idEpic = taskManager.createEpic(epic1);
+        taskManager.createSubtask(subtask2);
 
-        manager.getIdTask(1);
-        manager.getIdEpic(2);
-        manager.getIdSubTask(5);
+        taskManager.getTasks();
+        taskManager.getSabTasks();
+        taskManager.getEpics();
 
-        Task upgradedTask = new Task("Таск NEW", "Описание таск NEW", "DONE"); // id 1
-        Epic upgradedEpic = new Epic("Эпик NEW", "описание эпик NEW", "NEW"); // id 2
-        Subtask upgradedSubtask = new Subtask("Сабтаск NEW", "описание саб NEW", 2, "NEW"); // id 3
-        manager.updateTask(upgradedTask, 1);
-        manager.updateSubtask(upgradedSubtask, 3);
-        manager.updateEpic(upgradedEpic, 2);
+        taskManager.getIdTask(1);
+        System.out.println(historyManager.getHistory());
+        taskManager.getIdEpic(2);
+        System.out.println(historyManager.getHistory());
+        taskManager.getIdSubTask(5);
+        System.out.println(historyManager.getHistory());
 
-        manager.getSubtaskListFromEpic(2);
-        manager.getSubtaskListFromEpic(6);
+        Task upgradedTask = new Task("Таск NEW", "Описание таск NEW", Status.DONE); // id 1
+        Epic upgradedEpic = new Epic("Эпик NEW", "описание эпик NEW", Status.NEW); // id 2
+        Subtask upgradedSubtask = new Subtask("Сабтаск NEW", "описание саб NEW", 2, Status.NEW); // id 3
+        taskManager.updateTask(upgradedTask, 1);
+        taskManager.updateSubtask(upgradedSubtask, 3);
+        taskManager.updateEpic(upgradedEpic, 2);
 
-        manager.removeIdSubTask(7);
-        manager.removeIdTask(1);
-        manager.removeIdEpic(2);
+        taskManager.getSubtaskListFromEpic(2);
+        taskManager.getSubtaskListFromEpic(6);
 
-        manager.clearTask();
-        manager.clearSubTask();
-        manager.clearEpic();
+        taskManager.removeIdSubTask(7);
+        taskManager.removeIdTask(1);
+        taskManager.removeIdEpic(2);
+
+        taskManager.clearTask();
+        taskManager.clearSubTask();
+        taskManager.clearEpic();
     }
 }
