@@ -4,16 +4,16 @@ import data.Epic;
 import data.Subtask;
 import data.Task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public interface TaskManager {
     Integer createTask(Task task);
     Integer createSubtask(Subtask subtask);
     Integer createEpic(Epic epic);
-    HashMap<Integer, Task> getTasks();
-    HashMap<Integer, Subtask> getSabTasks();
-    HashMap<Integer, Epic> getEpics();
+    Map<Integer, Task> getTasks();
+    Map<Integer, Subtask> getSabTasks();
+    Map<Integer, Epic> getEpics();
     void clearTask();
     void clearEpic();
     void clearSubTask();
@@ -23,9 +23,9 @@ public interface TaskManager {
     void removeIdTask(int taskId);
     void removeIdEpic(int epicId);
     void removeIdSubTask(int subId);
-    ArrayList<Subtask> getSubtaskListFromEpic(int subId);
+    List<Subtask> getSubtaskListFromEpic(int subId);
     void updateTask(Task task, int taskId);
     void updateSubtask(Subtask subtask, int subId);
     void updateEpic(Epic epic, int epicId);
-    HistoryManager getHistoryManager();
+    List<Task> getHistory();
 }

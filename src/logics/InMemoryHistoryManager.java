@@ -6,20 +6,19 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private List<Task> history = new LinkedList<>();
+    private static final int HISTORY_LIMIT = 9;
+    private final LinkedList<Task> history = new LinkedList<>();
 
     @Override
-    public void add(Task task){
-        if (history.size() > 9 ){
-            history.remove(0);
-            history.add(task);
-        } else {
-            history.add(task);
+    public void add(Task task) {
+        if (history.size() > HISTORY_LIMIT) {
+            history.removeFirst();
         }
+        history.add(task);
     }
 
     @Override
-    public List<Task> getHistory(){
+    public List<Task> getHistory() {
         return history;
     }
 }

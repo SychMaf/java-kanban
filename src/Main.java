@@ -2,14 +2,12 @@ import data.Epic;
 import data.Status;
 import data.Subtask;
 import data.Task;
-import logics.HistoryManager;
 import logics.Managers;
 import logics.TaskManager;
 
 public class Main {
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getDefault();
-        HistoryManager historyManager = taskManager.getHistoryManager();
 
         Task task = new Task("Таск 1", "Описание таск 1", Status.NEW); // id 1
         Epic epic = new Epic("Эпик 1", "описание эпик 1", Status.NEW); // id 2
@@ -32,11 +30,11 @@ public class Main {
         taskManager.getEpics();
 
         taskManager.getIdTask(1);
-        System.out.println(historyManager.getHistory());
+        System.out.println(taskManager.getHistory());
         taskManager.getIdEpic(2);
-        System.out.println(historyManager.getHistory());
+        System.out.println(taskManager.getHistory());
         taskManager.getIdSubTask(5);
-        System.out.println(historyManager.getHistory());
+        System.out.println(taskManager.getHistory());
 
         Task upgradedTask = new Task("Таск NEW", "Описание таск NEW", Status.DONE); // id 1
         Epic upgradedEpic = new Epic("Эпик NEW", "описание эпик NEW", Status.NEW); // id 2
