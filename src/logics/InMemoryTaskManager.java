@@ -66,17 +66,29 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTask() {
+        for (int key : tasks.keySet()) { //очистка истории task
+            historyManager.remove(key);
+        }
         tasks.clear();
     }
 
     @Override
     public void clearEpic() {
+        for (int key : epics.keySet()) { //очистка истории epic
+            historyManager.remove(key);
+        }
+        for (int key : subtasks.keySet()) { //очистка истории subtask
+            historyManager.remove(key);
+        }
         epics.clear();
         subtasks.clear();
     }
 
     @Override
     public void clearSubTask() {
+        for (int key : subtasks.keySet()) { //очистка истории subtask
+            historyManager.remove(key);
+        }
         subtasks.clear();
         for (int key : epics.keySet()) {
             // зачистка сабов в эпиках
@@ -113,6 +125,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeIdTask(int taskId) {
+        historyManager.remove(taskId);
         tasks.remove(taskId);
     }
 
@@ -127,8 +140,11 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
         for (int i = 0; i < keys.size(); i++) {
+            historyManager.remove(subtasks.get(keys.get(i)).getId());
             subtasks.remove(keys.get(i));
+
         }
+        historyManager.remove(epicId);
         epics.remove(epicId);
     }
 
@@ -137,6 +153,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtasks.containsKey(subId)) {
             Epic epic = epics.get(subtasks.get(subId).getEpicBind());
             epic.removeSabTaskId(subId);
+            historyManager.remove(subId);
             subtasks.remove(subId);
             fillStatus(epic);
             // удалили сабтаск обновили статус эпика

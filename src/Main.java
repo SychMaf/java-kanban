@@ -29,11 +29,14 @@ public class Main {
         taskManager.getSabTasks();
         taskManager.getEpics();
 
+        System.out.println(taskManager.getHistory());
         taskManager.getIdTask(1);
         System.out.println(taskManager.getHistory());
         taskManager.getIdEpic(2);
         System.out.println(taskManager.getHistory());
         taskManager.getIdSubTask(5);
+        System.out.println(taskManager.getHistory());
+        taskManager.getIdTask(1);
         System.out.println(taskManager.getHistory());
 
         Task upgradedTask = new Task("Таск NEW", "Описание таск NEW", Status.DONE); // id 1
@@ -46,12 +49,40 @@ public class Main {
         taskManager.getSubtaskListFromEpic(2);
         taskManager.getSubtaskListFromEpic(6);
 
-        taskManager.removeIdSubTask(7);
+        taskManager.removeIdSubTask(5);
+        System.out.println(taskManager.getHistory()); //без сабтаска
         taskManager.removeIdTask(1);
+        System.out.println(taskManager.getHistory()); //без таска
         taskManager.removeIdEpic(2);
+        System.out.println(taskManager.getHistory()); //без эпика
 
-        taskManager.clearTask();
-        taskManager.clearSubTask();
-        taskManager.clearEpic();
+        Task tasktest1 = new Task("test 1", "Описание test 1", Status.NEW); // id 8
+        taskManager.createTask(tasktest1);
+        Task tasktest2 = new Task("test 2", "Описание test 2", Status.NEW); // id 9
+        taskManager.createTask(tasktest2);
+        Epic epictest1 = new Epic("test 1", "описание epictest 1", Status.DONE); // id 10
+        taskManager.createEpic(epictest1);
+        Subtask subtasktest1 = new Subtask("Сабтаскtest 1", "описание сабtest 1", 10, Status.DONE);
+        taskManager.createSubtask(subtasktest1);
+        Subtask subtasktest2 = new Subtask("Сабтаскtest 2", "описание сабtest 2", 10, Status.DONE);
+        taskManager.createSubtask(subtasktest2);
+        Subtask subtasktest3 = new Subtask("Сабтаскtest 3", "описание сабtest 3", 10, Status.DONE);
+        taskManager.createSubtask(subtasktest3);
+        Epic epictest2 = new Epic("test 2", "описание epictest 2", Status.DONE);
+        taskManager.createEpic(epictest2);
+        taskManager.getIdTask(8);
+        taskManager.getIdEpic(10);
+        taskManager.getIdTask(9);
+        taskManager.getIdSubTask(11);
+        taskManager.getIdSubTask(13);
+        taskManager.getIdSubTask(12);
+        System.out.println(taskManager.getHistory());
+        taskManager.getIdTask(8); // проверка повторения
+        taskManager.getIdEpic(14);
+        System.out.println(taskManager.getHistory());
+        taskManager.removeIdEpic(10);
+        System.out.println(taskManager.getHistory());
+        taskManager.removeIdTask(9);
+        System.out.println(taskManager.getHistory());
     }
 }
