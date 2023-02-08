@@ -5,6 +5,7 @@ public class Task {
     private String description;
     private Status status;
     private int id;
+    private String type = Type.TASK.toString();
 
     public Task(String name, String description, Status status) {
         this.name = name;
@@ -42,5 +43,10 @@ public class Task {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return getId() + "," + type + "," + getName() + "," + getStatus().toString() + "," + getDescription() + ",\n";
     }
 }

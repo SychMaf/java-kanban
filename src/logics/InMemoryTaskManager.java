@@ -16,6 +16,18 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
+    public int getGlobalId() {
+        return globalId;
+    }
+
+    public void setGlobalId(int globalId) {
+        this.globalId = globalId;
+    }
+
+    public HistoryManager getHistoryManager() {
+        return historyManager;
+    }
+
     @Override
     public Integer createTask(Task task) {
         task.setId(globalId);
@@ -38,7 +50,7 @@ public class InMemoryTaskManager implements TaskManager {
             globalId++;
             return globalId - 1;
         }
-        return null;
+        return -1;
     }
 
     @Override
@@ -47,6 +59,35 @@ public class InMemoryTaskManager implements TaskManager {
         epics.put(globalId, epic);
         globalId++;
         return globalId - 1;
+    }
+
+    @Override
+    public void createTask(Task task, int id) {
+        task.setId(id);
+        tasks.put(id, task);
+        globalId++;
+    }
+
+    @Override
+    public void createSubtask(Subtask subtask, int id) {
+        if (epics.containsKey(subtask.getEpicBind())) {
+            Epic epic = epics.get(subtask.getEpicBind());
+            subtask.setId(id);
+            epic.addSubTaskId(id);
+            epics.put(subtask.getEpicBind(), epic);
+            // вложили саб в епик
+            subtasks.put(id, subtask);
+            fillStatus(epic);
+            // обновили статус
+            globalId++;
+        }
+    }
+
+    @Override
+    public void createEpic(Epic epic, int id) {
+        epic.setId(id);
+        epics.put(id, epic);
+        globalId++;
     }
 
     @Override
@@ -240,4 +281,5 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStatus(Status.IN_PROGRESS);
         }
     }
+
 }
