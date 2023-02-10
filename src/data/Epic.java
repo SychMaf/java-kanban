@@ -3,11 +3,15 @@ package data;
 import java.util.ArrayList;
 
 public class Epic extends Task {
-    private String type = Type.EPIC.toString();
     private ArrayList<Integer> subtaskIdList = new ArrayList<>();
 
     public Epic(String name, String description, Status status) {
         super(name, description, status);
+    }
+
+    @Override
+    public Type getType() {
+        return Type.EPIC;
     }
 
     public ArrayList<Integer> getSubtaskIdList() {
@@ -28,6 +32,6 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return getId() + "," + type + "," + getName() + "," + getStatus().toString() + "," + getDescription() + ",\n";
+        return getId() + "; " + getType() + "; " + getName() + "; " + getStatus().toString() + "; " + getDescription() + "; \n";
     }
 }

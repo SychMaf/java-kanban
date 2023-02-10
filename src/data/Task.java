@@ -5,12 +5,15 @@ public class Task {
     private String description;
     private Status status;
     private int id;
-    private String type = Type.TASK.toString();
 
     public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
         this.status = status;
+    }
+
+    public Type getType() {
+        return Type.TASK;
     }
 
     public String getName() {
@@ -47,6 +50,6 @@ public class Task {
 
     @Override
     public String toString() {
-        return getId() + "," + type + "," + getName() + "," + getStatus().toString() + "," + getDescription() + ",\n";
+        return getId() + "; " + getStatus() + "; " + getName() + "; " + getStatus().toString() + "; " + getDescription() + ";\n";
     }
 }

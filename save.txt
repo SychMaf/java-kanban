@@ -1,8 +1,0 @@
-id,type,name,status,description,epic 
-5,EPIC,Эпик 2,DONE,описание эпик 2,
-6,TASK,Таск 2,NEW,описание 2,
-7,TASK,test 1,NEW,Описание test 1,
-8,TASK,test 2,NEW,Описание test 2,
-9,EPIC,test 1,DONE,описание epictest 1,
-
-8,

@@ -11,16 +11,16 @@ import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
     private int globalId = 1;
-    private final HashMap<Integer, Task> tasks = new HashMap<>();
-    private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
-    private final HashMap<Integer, Epic> epics = new HashMap<>();
+    protected final HashMap<Integer, Task> tasks = new HashMap<>();
+    protected final HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    protected final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     public int getGlobalId() {
         return globalId;
     }
 
-    public void setGlobalId(int globalId) {
+    protected void setGlobalId(int globalId) {
         this.globalId = globalId;
     }
 
@@ -59,35 +59,6 @@ public class InMemoryTaskManager implements TaskManager {
         epics.put(globalId, epic);
         globalId++;
         return globalId - 1;
-    }
-
-    @Override
-    public void createTask(Task task, int id) {
-        task.setId(id);
-        tasks.put(id, task);
-        globalId++;
-    }
-
-    @Override
-    public void createSubtask(Subtask subtask, int id) {
-        if (epics.containsKey(subtask.getEpicBind())) {
-            Epic epic = epics.get(subtask.getEpicBind());
-            subtask.setId(id);
-            epic.addSubTaskId(id);
-            epics.put(subtask.getEpicBind(), epic);
-            // вложили саб в епик
-            subtasks.put(id, subtask);
-            fillStatus(epic);
-            // обновили статус
-            globalId++;
-        }
-    }
-
-    @Override
-    public void createEpic(Epic epic, int id) {
-        epic.setId(id);
-        epics.put(id, epic);
-        globalId++;
     }
 
     @Override
@@ -255,7 +226,7 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    private void fillStatus(Epic epic) {
+    protected void fillStatus(Epic epic) {
         boolean flagProgress = false;
         boolean flagNew = false;
         boolean flagDone = false;
@@ -281,5 +252,4 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStatus(Status.IN_PROGRESS);
         }
     }
-
 }

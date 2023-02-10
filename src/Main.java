@@ -8,15 +8,14 @@ import logics.TaskManager;
 
 public class Main {
     public static void main(String[] args) {
-        FileBackedTasksManager fileManager = Managers.getDefaultFileManager("src\\data\\text.txt");
-        fileManager.loadFromFile("src\\data\\text.txt");
+        FileBackedTasksManager fileManager = FileBackedTasksManager.loadFromFile("src\\data\\text.txt");
 
         Task task = new Task("Таск 1", "Описание таск 1", Status.NEW); // id 1
         Epic epic = new Epic("Эпик 1", "описание эпик 1", Status.NEW); // id 2
         Subtask subtask = new Subtask("Сабтаск 1", "описание саб 1", 2, Status.NEW); // id 3
         Task task1 = new Task("Таск 2", "описание 2", Status.NEW); // id 4
         Subtask subtask1 = new Subtask("Сабтаск 2", "описание саб 2", 2, Status.DONE); // id 5
-        Epic epic1 = new Epic("Эпик 2", "описание эпик 2", Status.DONE); // id 6
+        Epic epic1 = new Epic("Эпик 2", "описание эпик 2", Status.NEW); // id 6
         Subtask subtask3 = new Subtask("Сабтаск 3", "описание саб 3", 6, Status.DONE); // id 7
 
         fileManager.createTask(task);
@@ -37,8 +36,7 @@ public class Main {
         fileManager.getIdTask(1);
         System.out.println(fileManager.getHistory());
 
-        FileBackedTasksManager fileManagerNew = new FileBackedTasksManager("src\\data\\text.txt");
-        fileManagerNew.loadFromFile("src\\data\\text.txt");
+        FileBackedTasksManager fileManagerNew = FileBackedTasksManager.loadFromFile("src\\data\\text.txt");
         System.out.println(fileManagerNew.getTasks());
         System.out.println(fileManagerNew.getSabTasks());
         System.out.println(fileManagerNew.getEpics());
