@@ -11,9 +11,6 @@ public interface TaskManager {
     Integer createTask(Task task);
     Integer createSubtask(Subtask subtask);
     Integer createEpic(Epic epic);
-    /*void createTask(Task task, int id);
-    void createSubtask(Subtask subtask, int id);
-    void createEpic(Epic epic, int id);*/
     Map<Integer, Task> getTasks();
     Map<Integer, Subtask> getSabTasks();
     Map<Integer, Epic> getEpics();
