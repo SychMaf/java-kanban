@@ -17,7 +17,7 @@ public class EpicStatusTest {
         Epic epic = new Epic("Test epic", "Test description", Status.NEW);
         int id = fileManager.createEpic(epic);
         final Epic savedEpic = fileManager.getIdEpic(id);
-        assertEquals(savedEpic.getStatus(), Status.NEW, "Статус совпадает"); // мб добавить чет
+        assertEquals(savedEpic.getStatus(), Status.NEW, "Статус не совпадает");
     }
 
     @Test
@@ -29,7 +29,7 @@ public class EpicStatusTest {
         fileManager.createSubtask(TestSubtask1);
         fileManager.createSubtask(TestSubtask2);
         final Epic savedEpic = fileManager.getIdEpic(epicId);
-        assertEquals(savedEpic.getStatus(), Status.NEW, "Статус совпадает");
+        assertEquals(savedEpic.getStatus(), Status.NEW, "Статус не совпадает");
     }
 
     @Test
@@ -41,7 +41,7 @@ public class EpicStatusTest {
         fileManager.createSubtask(TestSubtask1);
         fileManager.createSubtask(TestSubtask2);
         final Epic savedEpic = fileManager.getIdEpic(epicId);
-        assertEquals(savedEpic.getStatus(), Status.DONE, "Статус совпадает");
+        assertEquals(savedEpic.getStatus(), Status.DONE, "Статус не совпадает");
     }
 
     @Test
@@ -53,7 +53,7 @@ public class EpicStatusTest {
         fileManager.createSubtask(TestSubtask1);
         fileManager.createSubtask(TestSubtask2);
         final Epic savedEpic = fileManager.getIdEpic(epicId);
-        assertEquals(savedEpic.getStatus(), Status.IN_PROGRESS, "Статус совпадает");
+        assertEquals(savedEpic.getStatus(), Status.IN_PROGRESS, "Статус не совпадает");
     }
 
     @Test
@@ -65,6 +65,6 @@ public class EpicStatusTest {
         fileManager.createSubtask(TestSubtask1);
         fileManager.createSubtask(TestSubtask2);
         final Epic savedEpic = fileManager.getIdEpic(epicId);
-        assertEquals(savedEpic.getStatus(), Status.IN_PROGRESS, "Статус совпадает");
+        assertEquals(savedEpic.getStatus(), Status.IN_PROGRESS, "Статус не совпадает");
     }
 }
