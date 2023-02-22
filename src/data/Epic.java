@@ -1,9 +1,11 @@
 package data;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Epic extends Task {
     private ArrayList<Integer> subtaskIdList = new ArrayList<>();
+    private LocalDateTime endTime;
 
     public Epic(String name, String description, Status status) {
         super(name, description, status);
@@ -31,7 +33,17 @@ public class Epic extends Task {
     }
 
     @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    @Override
     public String toString() {
-        return getId() + "; " + getType() + "; " + getName() + "; " + getStatus().toString() + "; " + getDescription() + "; \n";
+        return getId() + "; " + getType() + "; " + getName() + "; " + getStatus().toString() + "; " + getDescription()
+                + "; \n";
     }
 }

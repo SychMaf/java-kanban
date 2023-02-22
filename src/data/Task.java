@@ -1,15 +1,49 @@
 package data;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Task {
     private String name;
     private String description;
     private Status status;
     private int id;
+    private LocalDateTime startTime;
+    private Duration durationWork;
+
 
     public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
         this.status = status;
+    }
+
+    public Task(String name, String description, Status status, LocalDateTime startTime, Duration durationWork) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.startTime = startTime;
+        this.durationWork = durationWork;
+    }
+
+    public Duration getDurationWork() {
+        return durationWork;
+    }
+
+    public void setDurationWork(Duration durationWork) {
+        this.durationWork = durationWork;
+    }
+
+    public LocalDateTime getEndTime() {
+        return startTime.plus(durationWork);
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 
     public Type getType() {
@@ -50,6 +84,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return getId() + "; " + getStatus() + "; " + getName() + "; " + getStatus().toString() + "; " + getDescription() + ";\n";
+        return getId() + "; " + getType() + "; " + getName() + "; " + getStatus().toString() + "; " + getDescription()
+                + "; \n";
     }
 }

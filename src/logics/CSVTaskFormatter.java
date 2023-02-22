@@ -2,24 +2,40 @@ package logics;
 
 import data.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CSVTaskFormatter {
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy,MM,dd,HH,mm");
 
     static String headline() {
-        return "id,type,name,status,description,epic \n";
+        return "id,type,name,status,description,epic,yyyy,MM,dd,HH,mm,duration \n";
     }
 
     static String toString(Task task) {
-        return task.getId() + "," + task.getType() + "," + task.getName() + "," +
-                task.getStatus().toString() + "," + task.getDescription() + ",\n";
-
+        if (task.getStartTime() != null) {
+            return task.getId() + "," + task.getType() + "," + task.getName() + "," +
+                    task.getStatus().toString() + "," + task.getDescription() + "," + task.getStartTime().format(formatter)
+                    + "," + task.getDurationWork().toMinutes() + ",\n";
+        } else {
+            return task.getId() + "," + task.getType() + "," + task.getName() + "," +
+                    task.getStatus().toString() + "," + task.getDescription() + ",\n";
+        }
     }
 
     static String toString(Subtask subtask) {
-        return subtask.getId() + "," + subtask.getType() + "," + subtask.getName() + "," +
-                subtask.getStatus().toString() + "," + subtask.getDescription() + "," + subtask.getEpicBind() + ",\n";
+        if (subtask.getStartTime() != null) {
+            return subtask.getId() + "," + subtask.getType() + "," + subtask.getName() + "," +
+                    subtask.getStatus().toString() + "," + subtask.getDescription() + "," + subtask.getEpicBind() + ","
+                    + subtask.getStartTime().format(formatter) + "," + subtask.getDurationWork().toMinutes() + ",\n";
+        } else {
+            return subtask.getId() + "," + subtask.getType() + "," + subtask.getName() + "," +
+                    subtask.getStatus().toString() + "," + subtask.getDescription() + "," + subtask.getEpicBind()
+                    + ",\n";
+        }
     }
 
     static String toString(HistoryManager historyManager) {
@@ -36,13 +52,27 @@ public class CSVTaskFormatter {
         Status status = Status.valueOf(parts[3]);
         switch (type) {
             case TASK:
-                Task task = new Task(parts[2], parts[4], status);
+                Task task;
+                if (parts.length > 6) {
+                    task = new Task(parts[2], parts[4], status,
+                            LocalDateTime.of(Integer.parseInt(parts[5]), Integer.parseInt(parts[6]), Integer.parseInt(parts[7]),
+                                    Integer.parseInt(parts[8]), Integer.parseInt(parts[9])), Duration.ofMinutes(Integer.parseInt(parts[10])));
+                } else {
+                    task = new Task(parts[2], parts[4], status);
+                }
                 return task;
             case EPIC:
                 Epic epic = new Epic(parts[2], parts[4], status);
                 return epic;
             case SUBTASK:
-                Subtask subtask = new Subtask(parts[2], parts[4], Integer.parseInt(parts[5]), status);
+                Subtask subtask;
+                if (parts.length > 6) {
+                    subtask = new Subtask(parts[2], parts[4], Integer.parseInt(parts[5]), status,
+                            LocalDateTime.of(Integer.parseInt(parts[6]), Integer.parseInt(parts[7]), Integer.parseInt(parts[8]),
+                                    Integer.parseInt(parts[9]), Integer.parseInt(parts[10])), Duration.ofMinutes(Integer.parseInt(parts[11])));
+                } else {
+                    subtask = new Subtask(parts[2], parts[4], Integer.parseInt(parts[5]), status);
+                }
                 return subtask;
         }
         return null;

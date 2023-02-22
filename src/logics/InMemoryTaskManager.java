@@ -1,13 +1,8 @@
 package logics;
 
-import data.Epic;
-import data.Status;
-import data.Subtask;
-import data.Task;
+import data.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
     private int globalId = 1;
@@ -15,6 +10,8 @@ public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     protected final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
+    protected final TimeFilling timeFilling = new TimeFilling();
+
 
     public int getGlobalId() {
         return globalId;
@@ -30,23 +27,27 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Integer createTask(Task task) {
-        task.setId(globalId);
-        tasks.put(globalId, task);
-        globalId++;
-        return globalId - 1;
+        if (timeFilling.checkTimeOverlay(task)) { //проверяем пересечение
+            timeFilling.fillTimeOverlay(task);
+            task.setId(globalId);
+            tasks.put(globalId, task);
+            globalId++;
+            return globalId - 1;
+        }
+        return -1;
     }
 
     @Override
     public Integer createSubtask(Subtask subtask) {
-        if (epics.containsKey(subtask.getEpicBind())) {
+        if (epics.containsKey(subtask.getEpicBind()) && timeFilling.checkTimeOverlay(subtask)) { //сущ. эпика и пересечения времени
             Epic epic = epics.get(subtask.getEpicBind());
+            timeFilling.fillTimeOverlay(subtask);
             subtask.setId(globalId);
             epic.addSubTaskId(globalId);
             epics.put(subtask.getEpicBind(), epic);
-            // вложили саб в епик
             subtasks.put(globalId, subtask);
+            epic = timeFilling.findEndTimeEpic(epic, subtasks);
             fillStatus(epic);
-            // обновили статус
             globalId++;
             return globalId - 1;
         }
@@ -78,8 +79,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTask() {
-        for (int key : tasks.keySet()) { //очистка истории task
+        for (int key : tasks.keySet()) { //очистка истории task и времени
             historyManager.remove(key);
+            timeFilling.removeTimeOverlay(tasks.get(key));
         }
         tasks.clear();
     }
@@ -89,8 +91,9 @@ public class InMemoryTaskManager implements TaskManager {
         for (int key : epics.keySet()) { //очистка истории epic
             historyManager.remove(key);
         }
-        for (int key : subtasks.keySet()) { //очистка истории subtask
+        for (int key : subtasks.keySet()) { //очистка истории subtask, и времени
             historyManager.remove(key);
+            timeFilling.removeTimeOverlay(subtasks.get(key));
         }
         epics.clear();
         subtasks.clear();
@@ -100,6 +103,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void clearSubTask() {
         for (int key : subtasks.keySet()) { //очистка истории subtask
             historyManager.remove(key);
+            timeFilling.removeTimeOverlay(subtasks.get(key));
         }
         subtasks.clear();
         for (int key : epics.keySet()) {
@@ -138,6 +142,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeIdTask(int taskId) {
         historyManager.remove(taskId);
+        timeFilling.removeTimeOverlay(tasks.get(taskId));
         tasks.remove(taskId);
     }
 
@@ -151,10 +156,10 @@ public class InMemoryTaskManager implements TaskManager {
                 keys.add(key);
             }
         }
-        for (int i = 0; i < keys.size(); i++) {
-            historyManager.remove(subtasks.get(keys.get(i)).getId());
-            subtasks.remove(keys.get(i));
-
+        for (Integer key : keys) {
+            historyManager.remove(subtasks.get(key).getId());
+            timeFilling.removeTimeOverlay(subtasks.get(key));
+            subtasks.remove(key);
         }
         historyManager.remove(epicId);
         epics.remove(epicId);
@@ -163,12 +168,13 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeIdSubTask(int subId) {
         if (subtasks.containsKey(subId)) {
+            timeFilling.removeTimeOverlay(subtasks.get(subId));
             Epic epic = epics.get(subtasks.get(subId).getEpicBind());
             epic.removeSabTaskId(subId);
             historyManager.remove(subId);
             subtasks.remove(subId);
-            fillStatus(epic);
-            // удалили сабтаск обновили статус эпика
+            epic = timeFilling.findEndTimeEpic(epic, subtasks);
+            fillStatus(epic); // удалили сабтаск обновили статус эпика
         }
     }
 
@@ -189,7 +195,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task, int taskId) {
-        if (tasks.containsKey(taskId)) {
+        if (tasks.containsKey(taskId) && timeFilling.checkTimeOverlay(task)) { //проверка наличия и возможного пересечения
+            timeFilling.removeTimeOverlay(task);
+            timeFilling.fillTimeOverlay(task);
             task.setId(taskId);
             tasks.put(taskId, task);
         }
@@ -197,15 +205,18 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubtask(Subtask subtask, int subId) {
-        if (subtasks.containsKey(subId)) {
+        if (subtasks.containsKey(subId) && timeFilling.checkTimeOverlay(subtask)) { //проверка наличия и возможного пересечения
+            timeFilling.removeTimeOverlay(subtask);
+            timeFilling.fillTimeOverlay(subtask);
             removeIdSubTask(subId);
             // удалили сабтаск
             Epic epic = epics.get(subtask.getEpicBind());
             epic.addSubTaskId(subId);
             subtask.setId(subId);
             // вложили саб в епик
-            epics.put(subtask.getEpicBind(), epic);
             subtasks.put(subId, subtask);
+            epic = timeFilling.findEndTimeEpic(epic, subtasks);
+            epics.put(subtask.getEpicBind(), epic);
             fillStatus(epic);
             // обновили статус
         }
@@ -214,9 +225,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateEpic(Epic epic, int epicId) {
         if (epics.containsKey(epicId)) {
+            epic.setId(epicId);
             Epic reEpic = epics.get(epicId);
             reEpic.setDescription(epic.getDescription());
             reEpic.setName(epic.getName());
+            reEpic.setId(epicId);
             epics.put(epicId, reEpic);
         }
     }
@@ -224,6 +237,22 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    @Override
+    public Set<Task> getPrioritizedTasks() {
+        Set<Task> tree = new TreeSet<>((t1, t2) -> {
+            if (t1.getStartTime() != null && t2.getStartTime() != null) {
+                return t1.getStartTime().compareTo(t2.getStartTime());
+            } else if (t1.getStartTime() != null && t2.getStartTime() == null) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
+        tree.addAll(subtasks.values());
+        tree.addAll(tasks.values());
+        return tree;
     }
 
     protected void fillStatus(Epic epic) {

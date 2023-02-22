@@ -1,5 +1,8 @@
 package data;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Subtask extends Task {
     private int epicBind;
 
@@ -7,13 +10,13 @@ public class Subtask extends Task {
         super(name, description, status);
         this.epicBind = epicBind;
     }
+    public Subtask(String name, String description, int epicBind, Status status, LocalDateTime startTime, Duration durationWork) {
+        super(name, description, status, startTime,durationWork);
+        this.epicBind = epicBind;
+    }
 
     public int getEpicBind() {
         return epicBind;
-    }
-
-    public void setEpicBind(int epicBind) {
-        this.epicBind = epicBind;
     }
 
     @Override
@@ -23,6 +26,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString() {
-        return getId() + "; " + getType() + "; " + getName() + "; " + getStatus().toString() + "; " + getDescription() + "; " + getEpicBind() + "; \n";
+        return getId() + "; " + getType() + "; " + getName() + "; " + getStatus().toString() + "; " + getDescription()
+                + "; " + getEpicBind() + "; \n";
     }
 }

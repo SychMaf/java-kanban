@@ -6,6 +6,7 @@ import data.Task;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface TaskManager {
     Integer createTask(Task task);
@@ -28,4 +29,5 @@ public interface TaskManager {
     void updateSubtask(Subtask subtask, int subId);
     void updateEpic(Epic epic, int epicId);
     List<Task> getHistory();
+    Set<Task> getPrioritizedTasks();
 }

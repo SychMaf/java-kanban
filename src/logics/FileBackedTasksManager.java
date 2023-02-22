@@ -1,6 +1,7 @@
 package logics;
 
 import data.*;
+import logics.exception.ManagerSaveException;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -21,9 +22,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     private void createTask(Task task, int id) {
-        task.setId(id);
-        tasks.put(id, task);
-        setGlobalId(getGlobalId() + 1);
+        if (timeFilling.checkTimeOverlay(task)) { //проверяем пересечение
+            timeFilling.fillTimeOverlay(task);
+            task.setId(id);
+            tasks.put(id, task);
+            setGlobalId(getGlobalId() + 1);
+        }
     }
 
     @Override
@@ -34,12 +38,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     private void createSubtask(Subtask subtask, int id) {
-        if (epics.containsKey(subtask.getEpicBind())) {
+        if (epics.containsKey(subtask.getEpicBind()) && timeFilling.checkTimeOverlay(subtask)) {
             Epic epic = epics.get(subtask.getEpicBind());
+            epic = timeFilling.findEndTimeEpic(epic, subtasks);
+            timeFilling.fillTimeOverlay(subtask);
             subtask.setId(id);
             epic.addSubTaskId(id);
             epics.put(subtask.getEpicBind(), epic);
-            // вложили саб в епик
+            // вложили саб в эпик
             subtasks.put(id, subtask);
             fillStatus(epic);
             // обновили статус
@@ -155,7 +161,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public static FileBackedTasksManager loadFromFile(String outputFileName) {
-        FileBackedTasksManager fileManager = Managers.getDefaultFileManager("src\\data\\text.txt");
+        FileBackedTasksManager fileManager = Managers.getDefaultFileManager(outputFileName);
         List<String> content = new ArrayList<>();
         String history = null;
         int maxId = 0;
