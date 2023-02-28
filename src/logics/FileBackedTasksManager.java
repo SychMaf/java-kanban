@@ -17,7 +17,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     @Override
     public Integer createTask(Task task) {
         int id = super.createTask(task);
-        save();
+        if (id != -1) {
+            save();
+        }
         return id;
     }
 
@@ -26,6 +28,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             timeFilling.fillTimeOverlay(task);
             task.setId(id);
             tasks.put(id, task);
+            tree.add(task);
             setGlobalId(getGlobalId() + 1);
         }
     }
@@ -33,20 +36,23 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     @Override
     public Integer createSubtask(Subtask subtask) {
         int id = super.createSubtask(subtask);
-        save();
+        if (id != -1) {
+            save();
+        }
         return id;
     }
 
     private void createSubtask(Subtask subtask, int id) {
         if (epics.containsKey(subtask.getEpicBind()) && timeFilling.checkTimeOverlay(subtask)) {
             Epic epic = epics.get(subtask.getEpicBind());
-            epic = timeFilling.findEndTimeEpic(epic, subtasks);
+            epic = timeFilling.epicTimeCalculation(epic, subtasks);
             timeFilling.fillTimeOverlay(subtask);
             subtask.setId(id);
             epic.addSubTaskId(id);
             epics.put(subtask.getEpicBind(), epic);
             // вложили саб в эпик
             subtasks.put(id, subtask);
+            tree.add(subtask);
             fillStatus(epic);
             // обновили статус
             setGlobalId(getGlobalId() + 1);

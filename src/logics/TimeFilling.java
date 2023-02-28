@@ -11,9 +11,10 @@ import java.util.HashMap;
 public class TimeFilling {
     protected final HashMap<LocalDateTime, Boolean> timeOverlay = new HashMap<>();
 
-    protected Epic findEndTimeEpic(Epic epic, HashMap<Integer, Subtask> subtasks) {
+    protected Epic epicTimeCalculation(Epic epic, HashMap<Integer, Subtask> subtasks) {
         LocalDateTime min = LocalDateTime.MAX;
         LocalDateTime max = LocalDateTime.MIN;
+        Duration durationEpic = Duration.ofMinutes(0);
         for (int includeId : epic.getSubtaskIdList()) {
             Subtask findTime = subtasks.get(includeId);
             if (findTime.getStartTime() != null) {
@@ -27,9 +28,10 @@ public class TimeFilling {
                     max = currentEnd;
                     epic.setEndTime(max);
                 }
-                epic.setDurationWork(Duration.between(min, max));
+                durationEpic = durationEpic.plus(findTime.getDurationWork());
             }
         }
+        epic.setDurationWork(durationEpic);
         return epic;
     }
 
@@ -42,15 +44,17 @@ public class TimeFilling {
                 start = start.plusMinutes(15);
             }
         }
-
     }
 
     protected boolean checkTimeOverlay(Task task) { //возвращает false при пересечении
         if (task.getStartTime() != null) {
             LocalDateTime start = task.getStartTime();
             LocalDateTime end = task.getEndTime();
-            if (timeOverlay.containsKey(start) || timeOverlay.containsKey(end)) {
-                return false;
+            while (start.isBefore(end)) {
+                if (timeOverlay.containsKey(start)) {
+                    return false;
+                }
+                start = start.plusMinutes(15);
             }
         }
         return true;

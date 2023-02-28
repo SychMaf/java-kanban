@@ -9,6 +9,17 @@ public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Task> tasks = new HashMap<>();
     protected final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     protected final HashMap<Integer, Epic> epics = new HashMap<>();
+    protected final Set<Task> tree = new TreeSet<>((t1, t2) -> {
+        if (t1.equals(t2)){
+            return 0;
+        } else if (t1.getStartTime() != null && t2.getStartTime() != null) {
+            return t1.getStartTime().compareTo(t2.getStartTime());
+        } else if (t1.getStartTime() != null && t2.getStartTime() == null) {
+            return -1;
+        } else {
+            return 1;
+        }
+    });
     private final HistoryManager historyManager = Managers.getDefaultHistory();
     protected final TimeFilling timeFilling = new TimeFilling();
 
@@ -31,6 +42,7 @@ public class InMemoryTaskManager implements TaskManager {
             timeFilling.fillTimeOverlay(task);
             task.setId(globalId);
             tasks.put(globalId, task);
+            tree.add(task);
             globalId++;
             return globalId - 1;
         }
@@ -46,7 +58,8 @@ public class InMemoryTaskManager implements TaskManager {
             epic.addSubTaskId(globalId);
             epics.put(subtask.getEpicBind(), epic);
             subtasks.put(globalId, subtask);
-            epic = timeFilling.findEndTimeEpic(epic, subtasks);
+            tree.add(subtask);
+            epic = timeFilling.epicTimeCalculation(epic, subtasks);
             fillStatus(epic);
             globalId++;
             return globalId - 1;
@@ -79,9 +92,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearTask() {
-        for (int key : tasks.keySet()) { //очистка истории task и времени
+        for (int key : tasks.keySet()) { //очистка истории task и времени, сортировки
             historyManager.remove(key);
             timeFilling.removeTimeOverlay(tasks.get(key));
+            tree.remove(tasks.get(key));
         }
         tasks.clear();
     }
@@ -91,9 +105,10 @@ public class InMemoryTaskManager implements TaskManager {
         for (int key : epics.keySet()) { //очистка истории epic
             historyManager.remove(key);
         }
-        for (int key : subtasks.keySet()) { //очистка истории subtask, и времени
+        for (int key : subtasks.keySet()) { //очистка истории subtask, и времени, сортировки
             historyManager.remove(key);
             timeFilling.removeTimeOverlay(subtasks.get(key));
+            tree.remove(subtasks.get(key));
         }
         epics.clear();
         subtasks.clear();
@@ -104,6 +119,7 @@ public class InMemoryTaskManager implements TaskManager {
         for (int key : subtasks.keySet()) { //очистка истории subtask
             historyManager.remove(key);
             timeFilling.removeTimeOverlay(subtasks.get(key));
+            tree.remove(subtasks.get(key));
         }
         subtasks.clear();
         for (int key : epics.keySet()) {
@@ -143,6 +159,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeIdTask(int taskId) {
         historyManager.remove(taskId);
         timeFilling.removeTimeOverlay(tasks.get(taskId));
+        tree.remove(tasks.get(taskId));
         tasks.remove(taskId);
     }
 
@@ -159,6 +176,7 @@ public class InMemoryTaskManager implements TaskManager {
         for (Integer key : keys) {
             historyManager.remove(subtasks.get(key).getId());
             timeFilling.removeTimeOverlay(subtasks.get(key));
+            tree.remove(subtasks.get(key));
             subtasks.remove(key);
         }
         historyManager.remove(epicId);
@@ -172,8 +190,9 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = epics.get(subtasks.get(subId).getEpicBind());
             epic.removeSabTaskId(subId);
             historyManager.remove(subId);
+            tree.remove(subtasks.get(subId));
             subtasks.remove(subId);
-            epic = timeFilling.findEndTimeEpic(epic, subtasks);
+            epic = timeFilling.epicTimeCalculation(epic, subtasks);
             fillStatus(epic); // удалили сабтаск обновили статус эпика
         }
     }
@@ -198,6 +217,8 @@ public class InMemoryTaskManager implements TaskManager {
         if (tasks.containsKey(taskId) && timeFilling.checkTimeOverlay(task)) { //проверка наличия и возможного пересечения
             timeFilling.removeTimeOverlay(task);
             timeFilling.fillTimeOverlay(task);
+            tree.remove(tasks.get(taskId));
+            tree.add(task);
             task.setId(taskId);
             tasks.put(taskId, task);
         }
@@ -208,6 +229,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtasks.containsKey(subId) && timeFilling.checkTimeOverlay(subtask)) { //проверка наличия и возможного пересечения
             timeFilling.removeTimeOverlay(subtask);
             timeFilling.fillTimeOverlay(subtask);
+            tree.remove(subtasks.get(subId));
             removeIdSubTask(subId);
             // удалили сабтаск
             Epic epic = epics.get(subtask.getEpicBind());
@@ -215,10 +237,10 @@ public class InMemoryTaskManager implements TaskManager {
             subtask.setId(subId);
             // вложили саб в епик
             subtasks.put(subId, subtask);
-            epic = timeFilling.findEndTimeEpic(epic, subtasks);
+            tree.add(subtask);
+            epic = timeFilling.epicTimeCalculation(epic, subtasks);
             epics.put(subtask.getEpicBind(), epic);
             fillStatus(epic);
-            // обновили статус
         }
     }
 
@@ -240,19 +262,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Set<Task> getPrioritizedTasks() {
-        Set<Task> tree = new TreeSet<>((t1, t2) -> {
-            if (t1.getStartTime() != null && t2.getStartTime() != null) {
-                return t1.getStartTime().compareTo(t2.getStartTime());
-            } else if (t1.getStartTime() != null && t2.getStartTime() == null) {
-                return -1;
-            } else {
-                return 1;
-            }
-        });
-        tree.addAll(subtasks.values());
-        tree.addAll(tasks.values());
-        return tree;
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(tree);
     }
 
     protected void fillStatus(Epic epic) {
