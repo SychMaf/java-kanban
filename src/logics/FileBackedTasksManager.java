@@ -23,7 +23,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return id;
     }
 
-    private void createTask(Task task, int id) {
+    protected void createTask(Task task, int id) {
         if (timeFilling.checkTimeOverlay(task)) { //проверяем пересечение
             timeFilling.fillTimeOverlay(task);
             task.setId(id);
@@ -42,16 +42,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return id;
     }
 
-    private void createSubtask(Subtask subtask, int id) {
+    protected void createSubtask(Subtask subtask, int id) {
         if (epics.containsKey(subtask.getEpicBind()) && timeFilling.checkTimeOverlay(subtask)) {
             Epic epic = epics.get(subtask.getEpicBind());
+            subtask.setId(id);
+            subtasks.put(id, subtask);
             epic = timeFilling.epicTimeCalculation(epic, subtasks);
             timeFilling.fillTimeOverlay(subtask);
-            subtask.setId(id);
             epic.addSubTaskId(id);
             epics.put(subtask.getEpicBind(), epic);
-            // вложили саб в эпик
-            subtasks.put(id, subtask);
             tree.add(subtask);
             fillStatus(epic);
             // обновили статус
@@ -66,7 +65,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return id;
     }
 
-    private void createEpic(Epic epic, int id) {
+    protected void createEpic(Epic epic, int id) {
         epic.setId(id);
         epics.put(id, epic);
         setGlobalId(getGlobalId() + 1);
@@ -147,7 +146,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         save();
     }
 
-    private void save() {
+    protected void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName, false))) {
             writer.write(CSVTaskFormatter.headline());
             for (int i = 1; i < getGlobalId(); i++) {

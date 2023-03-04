@@ -35,10 +35,14 @@ public class Task {
     }
 
     public LocalDateTime getEndTime() {
+        if (startTime == null)
+            return null;
         return startTime.plus(durationWork);
     }
 
     public LocalDateTime getStartTime() {
+        if (startTime == null)
+            return null;
         return startTime;
     }
 
