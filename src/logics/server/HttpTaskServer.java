@@ -23,7 +23,7 @@ public class HttpTaskServer {
             .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter().nullSafe())
             .create();
     public HttpServer httpServer;
-    public static HTTPTaskManager httpManager;
+    private HTTPTaskManager httpManager;
 
     public HttpTaskServer() throws IOException {
         httpServer = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
@@ -45,8 +45,7 @@ public class HttpTaskServer {
         httpManager.loadTasks();
     }
 
-    static class TasksHandler implements HttpHandler {
-
+    public class TasksHandler implements HttpHandler {
 
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {

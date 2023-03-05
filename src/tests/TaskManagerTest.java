@@ -14,7 +14,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     protected T taskManager;
 
     abstract void setTaskManager();
-    
+
     @BeforeEach
     void setUp() {
         setTaskManager();

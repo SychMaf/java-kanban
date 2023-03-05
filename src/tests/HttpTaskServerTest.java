@@ -3,8 +3,6 @@ package tests;
 import com.google.gson.*;
 import data.*;
 import logics.LocalDateAdapter;
-import logics.Managers;
-import logics.server.HTTPTaskManager;
 import logics.server.HttpTaskServer;
 import logics.server.KVServer;
 import org.junit.jupiter.api.*;
@@ -22,17 +20,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HttpTaskServerTest {
 
     HttpTaskServer httpTaskServer;
-    HTTPTaskManager loadedTaskManager;
     HttpClient httpClient = HttpClient.newHttpClient();
     KVServer kvServer;
     String path = "http://localhost:8080";
     private static final Gson gson = new GsonBuilder().
             registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter().nullSafe()).
             create();
-
-    public HttpTaskServerTest() {
-        loadedTaskManager = Managers.getDefaultHTTPTaskManager();
-    }
 
     @BeforeEach
     void starServer() throws IOException {
